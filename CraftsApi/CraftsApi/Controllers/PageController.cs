@@ -25,6 +25,7 @@ namespace CraftsApi.Controllers
             _pageHubContext = pageHubContext;
         }
 
+        [AllowAnonymous]
         [HttpGet("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Page>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -34,6 +35,7 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(pages.ToList());
         }
 
+        [AllowAnonymous]
         [HttpGet("[action]/{pageId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -43,6 +45,7 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(page);
         }
 
+        [AllowAnonymous]
         [HttpGet("[action]/{pageLink}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -52,6 +55,7 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(page);
         }
 
+        [AllowAnonymous]
         [HttpGet("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
