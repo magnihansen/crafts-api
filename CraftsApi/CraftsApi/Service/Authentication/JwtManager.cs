@@ -18,7 +18,7 @@ namespace CraftsApi.Service.Authentication
         {
             _userService = userService;
             _configuration = configuration;
-            _key = _configuration["JwtSecurityKey"].ToString();
+            _key = _configuration["Jwt:Key"].ToString();
         }
 
         public async Task<string> Authenticate(string username, string password)
