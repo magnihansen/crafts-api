@@ -33,24 +33,7 @@ namespace CraftsApi
         {
             services.AddControllers();
 
-            // services.AddSingleton<IJwtManager, JwtManager>();
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>  
-            {  
-                options.TokenValidationParameters = new TokenValidationParameters  
-                {  
-                    ValidateIssuer = true,  
-                    ValidateAudience = true,  
-                    ValidateLifetime = false,  
-                    ValidateIssuerSigningKey = true,  
-                    ValidIssuer = Configuration["Jwt:Issuer"],  
-                    ValidAudience = Configuration["Jwt:Issuer"],  
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) //Configuration["JwtToken:SecretKey"]  
-                };
-            });
+            services.AddSingleton<IJwtManager, JwtManager>();
 
             // for background service worker
             services.AddSingleton<IPageWorker, PageWorker>();
@@ -115,7 +98,7 @@ namespace CraftsApi
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     ValidAudience = Configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) //Configuration["JwtToken:SecretKey"]  
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) 
                 };
             });
 
@@ -154,7 +137,6 @@ namespace CraftsApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseSession();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseDefaultFiles();
