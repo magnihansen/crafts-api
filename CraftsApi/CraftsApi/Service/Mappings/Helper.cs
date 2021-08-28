@@ -22,11 +22,13 @@ namespace CraftsApi.Service.Mappings
         public static ViewModels.Page MapDomainPageToViewPage(this DomainModels.Page page)
         {
             return new ViewModels.Page(
+                page.Id,
                 page.Uid,
                 page.Title,
                 page.ParentUid,
                 page.Content,
                 page.PageRank,
+                page.Link,
                 page.Active,
                 page.CreatedDate,
                 page.CreatedBy,
@@ -83,6 +85,10 @@ namespace CraftsApi.Service.Mappings
 
         public static ViewModels.User MapDomainUserToViewUser(this DomainModels.User user)
         {
+            if (user.Id == 0)
+            {
+                return null;
+            }
             return new ViewModels.User(
                 user.Id,
                 user.Username,
@@ -139,6 +145,32 @@ namespace CraftsApi.Service.Mappings
                 UpdatedDate = updateUserRequest.UpdatedDate,
                 UpdatedBy = updateUserRequest.UpdatedBy
             };
+        }
+
+        /* Data mappings */
+        public static ViewModels.Contact MapDomainContactToViewContact(this DomainModels.Contact contact)
+        {
+            return new ViewModels.Contact(
+                contact.Id,
+                contact.Name,
+                contact.Email,
+                contact.Phone,
+                contact.Message,
+                contact.CreatedDate,
+                contact.CreatedBy
+            );
+        }
+
+        public static List<ViewModels.Contact> MapListOfDomainContactsToListOfViewContacts(this List<DomainModels.Contact> contacts)
+        {
+            List<ViewModels.Contact> mapped_contacts = new List<ViewModels.Contact>();
+
+            foreach (DomainModels.Contact domainContact in contacts)
+            {
+                mapped_contacts.Add(domainContact.MapDomainContactToViewContact());
+            }
+
+            return mapped_contacts;
         }
     }
 }

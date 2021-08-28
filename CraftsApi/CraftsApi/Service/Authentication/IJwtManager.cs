@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace CraftsApi.Service.Authentication
 {
     public interface IJwtManager
     {
         Task<string> Authenticate(string username, string password);
+
+        Task<ViewModels.User> GetUserByIdentity(ClaimsIdentity identity);
     }
 }

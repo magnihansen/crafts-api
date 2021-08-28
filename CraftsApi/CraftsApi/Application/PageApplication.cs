@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CraftsApi.DataAccess;
+using CraftsApi.Helpers;
 
 namespace CraftsApi.Application
 {
@@ -45,6 +46,19 @@ namespace CraftsApi.Application
             );
         }
 
+        public async Task<DomainModels.Page> GetPageByUidAsync(string pageUid)
+        {
+            return await _dataAccess.LoadSingleData<DomainModels.Page, dynamic>(
+                @"SELECT * FROM Page
+                WHERE Active = 1
+                AND Uid = @PageUid",
+                new
+                {
+                    PageUid = pageUid
+                }
+            );
+        }
+
         public async Task<DomainModels.Page> GetDefaultPageAsync()
         {
             return await _dataAccess.LoadSingleData<DomainModels.Page, dynamic>(
@@ -80,7 +94,7 @@ namespace CraftsApi.Application
             UPDATE Page SET
             uid = @uid,
             title = @title,
-            parent = @parent,
+            parent = IFNULL(@parent, ''),
             content = @content,
             pagerank = @pagerank,
             link = @link,
@@ -99,7 +113,7 @@ namespace CraftsApi.Application
                 @pagerank = page.PageRank,
                 @link = page.Link,
                 @active = page.Active,
-                @updateddate = page.UpdatedDate,
+                @updateddate = page.UpdatedDate.ConvertToMySqlDateTime(),
                 @updatedby = page.UpdatedBy
             });
             return updated > 0;

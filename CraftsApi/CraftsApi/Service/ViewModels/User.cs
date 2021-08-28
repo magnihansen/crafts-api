@@ -43,6 +43,7 @@ namespace CraftsApi.Service.ViewModels
             Email = email;
             Phone = phone ?? throw new ArgumentNullException(nameof(phone));
             Active = active;
+            CreatedBy = createdBy;
         }
 
         public int Id { get; }
@@ -66,5 +67,7 @@ namespace CraftsApi.Service.ViewModels
         public string Phone { get; }
 
         public bool Active { get; }
+
+        public string CreatedBy { get; }
     }
 }

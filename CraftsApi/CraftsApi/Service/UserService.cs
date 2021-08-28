@@ -30,6 +30,10 @@ namespace CraftsApi.Service
         public async Task<ViewModels.User> GetUserByCredientialsAsync(string username, string password)
         {
             DomainModels.User user = await _userApplication.GetUserByCredientialsAsync(username, password);
+            if (user == null)
+            {
+                return null;
+            }
             return user.MapDomainUserToViewUser();
         }
 

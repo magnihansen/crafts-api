@@ -12,6 +12,8 @@ namespace CraftsApi.Service
 
         Task<ViewModels.Page> GetPageByLinkAsync(string pageLink);
 
+        Task<ViewModels.Page> GetPageByUidAsync(string pageUid);
+
         Task<ViewModels.Page> GetDefaultPageAsync();
 
         Task<bool> AddPageAsync(AddPageRequest addPageReqest);

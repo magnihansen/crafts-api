@@ -1,26 +1,33 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using CraftsApi.Service;
+using CraftsApi.Service.Authentication;
 using CraftsApi.Service.Requests;
 using CraftsApi.Service.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CraftsApi.Controllers
+namespace CraftsApi.Controllers.V1
 {
+    [Version(1)]
     public class UserController : BaseController
     {
         private readonly IUserService _userService;
+        private readonly IJwtManager _jwtManager;
 
         public UserController(
-            IUserService userService)
+            IUserService userService,
+            IJwtManager jwtManager)
         {
             _userService = userService;
+            _jwtManager = jwtManager;
         }
 
-        [HttpGet("[action]")]
+        [HttpGet]
+        [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<User>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUsers()
@@ -29,7 +36,9 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(users.ToList());
         }
 
-        [HttpGet("[action]/{userId}")]
+        [Authorize]
+        [HttpGet]
+        [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUser(int userId)
@@ -38,7 +47,28 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(user);
         }
 
-        [HttpPost("[action]")]
+        [Authorize]
+        [HttpGet]
+        [ProducesDefaultResponseType]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetUserByIdentity()
+        {
+            var identity = User.Identity as ClaimsIdentity;
+            if (identity == null)
+            {
+                return NotFound(identity);
+            }
+            User user = await _jwtManager.GetUserByIdentity(identity);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return new OkObjectResult(user);
+        }
+
+        [HttpPost]
+        [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddUser(AddUserRequest addUserRequest)
@@ -47,7 +77,8 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(userAdded);
         }
 
-        [HttpPut("[action]")]
+        [HttpPut]
+        [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateUser(UpdateUserRequest updateUserRequest)
@@ -56,7 +87,8 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(userUpdated);
         }
 
-        [HttpDelete("[action]/{userId}")]
+        [HttpDelete]
+        [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteUser(int userId)

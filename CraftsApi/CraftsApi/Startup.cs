@@ -6,6 +6,7 @@ using CraftsApi.Service;
 using CraftsApi.Service.Authentication;
 using CraftsApi.Service.Background;
 using CraftsApi.Service.Hubs;
+using CraftsApi.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,9 +44,11 @@ namespace CraftsApi
             );
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IDataService, DataService>();
 
             services.AddSingleton<IPageApplication, PageApplication>();
             services.AddSingleton<IUserApplication, UserApplication>();
+            services.AddSingleton<IDataApplication, DataApplication>();
 
             services.AddSwaggerGen(swagger =>
             {
@@ -90,15 +93,18 @@ namespace CraftsApi
 
             }).AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidateLifetime = false,
+                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Jwt:Issuer"],
-                    ValidAudience = Configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) 
+                    ValidIssuer = Configuration["Jwt:ValidIssuer"].ToString(),
+                    ValidAudience = Configuration["Jwt:ValidAudience"].ToString(),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecurityKey"].ToString())),
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 
@@ -107,14 +113,14 @@ namespace CraftsApi
                 options.AddDefaultPolicy(
                 builder =>
                 {
-                    builder.WithOrigins("http://localhost:4200", "https://localhost:4200");
+                    builder.WithOrigins("http://localhost:4200", "https://localhost:4200", "http://89.187.103.53", "http://instantcms.dk");
                 });
 
                 options.AddPolicy(
                     name: MyAllowSpecificOrigins,
                     options =>
                     {
-                        options.WithOrigins("http://localhost:4200", "https://localhost:4200")
+                        options.WithOrigins("http://localhost:4200", "https://localhost:4200", "http://89.187.103.53", "http://instantcms.dk")
                         .AllowCredentials()
                         .AllowAnyHeader()
                         .AllowAnyMethod();
@@ -132,11 +138,6 @@ namespace CraftsApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseDefaultFiles();
@@ -147,8 +148,19 @@ namespace CraftsApi
             app.UseAuthorization();
             app.UseAuthentication();
 
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwaggerAuthorized(Configuration["AllowSwaggerAccessFor"]);
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CraftsApi v1"));
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(swagger =>
+            {
+                swagger.SwaggerEndpoint("/swagger/v1/swagger.json", "CraftsApi v1");
+                swagger.DisplayRequestDuration();
+                swagger.EnableDeepLinking();
+                swagger.DisplayOperationId();
+            });
 
             app.UseEndpoints(endpoints =>
             {

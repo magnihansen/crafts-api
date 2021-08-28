@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,8 +22,8 @@ namespace CraftsApi.DataAccess
             using (IDbConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
-                var row = await connection.QuerySingleAsync<T>(sql, parameters);
-                return row;
+                var rows = await connection.QueryAsync<T>(sql, parameters);
+                return rows.Count() > 0 ? rows.First() : default(T);
             }
         }
 
@@ -36,12 +37,12 @@ namespace CraftsApi.DataAccess
             }
         }
 
-        public Task<int> SaveData<T>(string sql, T parameters)
+        public async Task<int> SaveData<T>(string sql, T parameters)
         {
             using (IDbConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
-                return connection.ExecuteAsync(sql, parameters);
+                return await connection.ExecuteAsync(sql, parameters);
             }
         }
     }

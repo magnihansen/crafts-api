@@ -33,6 +33,12 @@ namespace CraftsApi.Service
             return page.MapDomainPageToViewPage();
         }
 
+        public async Task<ViewModels.Page> GetPageByUidAsync(string pageUid)
+        {
+            DomainModels.Page page = await _pageApplication.GetPageByUidAsync(pageUid);
+            return page.MapDomainPageToViewPage();
+        }
+
         public async Task<ViewModels.Page> GetDefaultPageAsync()
         {
             DomainModels.Page page = await _pageApplication.GetDefaultPageAsync();

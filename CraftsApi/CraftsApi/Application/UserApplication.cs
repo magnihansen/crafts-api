@@ -34,7 +34,7 @@ namespace CraftsApi.Application
 
         public async Task<DomainModels.User> GetUserByCredientialsAsync(string username, string password)
         {
-            return await _dataAccess.LoadSingleData<DomainModels.User, dynamic>(
+            DomainModels.User user = await _dataAccess.LoadSingleData<DomainModels.User, dynamic>(
                 @"SELECT * FROM User WHERE Username = @userName AND Password = @password",
                 new
                 {
@@ -42,6 +42,11 @@ namespace CraftsApi.Application
                     password = password
                 }
             );
+            if (user == null)
+            {
+                return new DomainModels.User();
+            }
+            return user;
         }
 
         public async Task<bool> AddUserAsync(DomainModels.User user)

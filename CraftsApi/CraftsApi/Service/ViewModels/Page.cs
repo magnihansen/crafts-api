@@ -3,7 +3,7 @@ namespace CraftsApi.Service.ViewModels
 {
     public class Page
     {
-        public Page(string uid, string title, string parent, string content, string pageRank,
+        public Page(int id, string uid, string title, string parent, string content, string pageRank, string link,
             bool active, DateTime createdDate, string createdBy, DateTime updatedDate, string updatedBy)
         {
             if (string.IsNullOrWhiteSpace(uid))
@@ -31,17 +31,21 @@ namespace CraftsApi.Service.ViewModels
                 throw new ArgumentException($"'{nameof(createdBy)}' cannot be null or whitespace", nameof(createdBy));
             }
 
+            Id = id;
             Uid = uid;
             Title = title;
             Parent = parent;
             Content = content;
             PageRank = pageRank;
+            Link = link ?? throw new ArgumentNullException(nameof(link));
             Active = active;
             CreatedDate = createdDate;
             CreatedBy = createdBy;
             UpdatedDate = updatedDate;
             UpdatedBy = updatedBy;
         }
+
+        public int Id { get; }
 
         public string Uid { get; }
 

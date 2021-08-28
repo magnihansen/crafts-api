@@ -11,6 +11,8 @@ namespace CraftsApi.Application
 
         Task<DomainModels.Page> GetPageByLinkAsync(string pageLink);
 
+        Task<DomainModels.Page> GetPageByUidAsync(string pageUid);
+
         Task<DomainModels.Page> GetDefaultPageAsync();
 
         Task<bool> AddPageAsync(DomainModels.Page page);

@@ -10,8 +10,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
-namespace CraftsApi.Controllers
+namespace CraftsApi.Controllers.V1
 {
+    [Version(1)]
     public class PageController : BaseController
     {
         private readonly IPageService _pageService;
@@ -26,7 +27,7 @@ namespace CraftsApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("[action]")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Page>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPages()
@@ -36,7 +37,7 @@ namespace CraftsApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("[action]/{pageId}")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPage(int pageId)
@@ -46,7 +47,7 @@ namespace CraftsApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("[action]/{pageLink}")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPageByLink(string pageLink)
@@ -56,7 +57,17 @@ namespace CraftsApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("[action]")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPageByUid(string pageUid)
+        {
+            var page = await _pageService.GetPageByUidAsync(pageUid);
+            return new OkObjectResult(page);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetDefaultPage()
@@ -65,7 +76,7 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(page);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddPage(AddPageRequest addPageRequest)
@@ -75,7 +86,7 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(pageAdded);
         }
 
-        [HttpPut("[action]")]
+        [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdatePage(UpdatePageRequest updatePageRequest)
@@ -84,7 +95,7 @@ namespace CraftsApi.Controllers
             return new OkObjectResult(pageUpdated);
         }
 
-        [HttpDelete("[action]/{pageId}")]
+        [HttpDelete]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePage(int pageId)

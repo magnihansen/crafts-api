@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
 using CraftsApi.Service.Authentication;
+using CraftsApi.Service.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CraftsApi.Controllers
+namespace CraftsApi.Controllers.V1
 {
+    [Version(1)]
     public class LoginController : BaseController
     {
         private readonly IJwtManager _jwtManager;
@@ -16,17 +18,16 @@ namespace CraftsApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("[action]")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Authenticate(string username, string password)
+        [HttpPost]
+        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        //[ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(string))]
+        public async Task<IActionResult> Authenticate(AuthenticateRequest authenticateRequest)
         {
-            string token = await _jwtManager.Authenticate(username, password);
+            string token = await _jwtManager.Authenticate(authenticateRequest.Username, authenticateRequest.Password);
             if (token == null)
             {
-                return Unauthorized("Could not create token");
+                return NoContent();
             }
-
             return Ok(token);
         }
     }

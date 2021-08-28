@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace CraftsApi.Service.Authentication
 {
@@ -18,42 +20,51 @@ namespace CraftsApi.Service.Authentication
         {
             _userService = userService;
             _configuration = configuration;
-            _key = _configuration["Jwt:Key"].ToString();
+            _key = _configuration["Jwt:SecretKey"].ToString();
         }
 
         public async Task<string> Authenticate(string username, string password)
         {
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                throw new ArgumentException($"'{nameof(username)}' cannot be null or whitespace.", nameof(username));
-            }
-
-            if (string.IsNullOrWhiteSpace(password))
-            {
-                throw new ArgumentException($"'{nameof(password)}' cannot be null or whitespace.", nameof(password));
-            }
-
             ViewModels.User user = await _userService.GetUserByCredientialsAsync(username, password);
             if (user == null)
             {
-                return "";
+                return null;
             }
+            return GenerateToken(user);
+        }
 
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            byte[] tokenKey = Encoding.ASCII.GetBytes(_key);
-            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+        public async Task<ViewModels.User> GetUserByIdentity(ClaimsIdentity identity)
+        {
+            string userData = identity.Claims.Where(p => p.Type == "userData").FirstOrDefault()?.Value;
+            ViewModels.User user = JsonConvert.DeserializeObject<ViewModels.User>(userData);
+            return await Task.Run(() => user);
+        }
+
+        private string GenerateToken(ViewModels.User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
             {
-                Subject = new ClaimsIdentity(new Claim[] {
-                    new Claim(ClaimTypes.Name, username)
-                }),
-                Expires = DateTime.UtcNow.AddHours(4),
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(tokenKey),
-                    SecurityAlgorithms.HmacSha256Signature
-                )
-            };
-            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+            new Claim("fullName", user.Firstname + " " + user.Lastname),
+            new Claim("id", user.Id.ToString()),
+            new Claim("userData", JsonConvert.SerializeObject(user)),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Aud, _configuration["Jwt:Audience"]),
+            new Claim(JwtRegisteredClaimNames.Iss, _configuration["Jwt:Issuer"])
+        };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddDays(7),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
