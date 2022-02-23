@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using CraftsApi.Application;
 using CraftsApi.DataAccess;
@@ -6,7 +7,6 @@ using CraftsApi.Service;
 using CraftsApi.Service.Authentication;
 using CraftsApi.Service.Background;
 using CraftsApi.Service.Hubs;
-using CraftsApi.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,7 +33,6 @@ namespace CraftsApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
             services.AddSingleton<IJwtManager, JwtManager>();
 
             // for background service worker
@@ -52,6 +51,8 @@ namespace CraftsApi
 
             services.AddSwaggerGen(swagger =>
             {
+                swagger.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+
                 //This is to generate the Default UI of Swagger Documentation  
                 swagger.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -110,21 +111,13 @@ namespace CraftsApi
 
             services.AddCors(options =>
             {
-                options.AddDefaultPolicy(
-                builder =>
-                {
-                    builder.WithOrigins("http://localhost:4200", "https://localhost:4200", "http://89.187.103.53", "http://instantcms.dk");
-                });
-
                 options.AddPolicy(
                     name: MyAllowSpecificOrigins,
-                    options =>
-                    {
-                        options.WithOrigins("http://localhost:4200", "https://localhost:4200", "http://89.187.103.53", "http://instantcms.dk")
+                    builder => builder
+                        .WithOrigins("http://localhost:4200", "https://localhost:4200", "http://89.187.103.53", "http://instantcms.dk")
                         .AllowCredentials()
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
-                    }
+                        .AllowAnyMethod()
                 );
             });
 
@@ -138,6 +131,11 @@ namespace CraftsApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseDefaultFiles();
@@ -149,14 +147,14 @@ namespace CraftsApi
             app.UseAuthentication();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwaggerAuthorized(Configuration["AllowSwaggerAccessFor"]);
+            // app.UseSwaggerAuthorized(Configuration["AllowSwaggerAccessFor"]);
             app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(swagger =>
             {
-                swagger.SwaggerEndpoint("/swagger/v1/swagger.json", "CraftsApi v1");
+                swagger.SwaggerEndpoint("v1/swagger.json", "CraftsApi V1");
                 swagger.DisplayRequestDuration();
                 swagger.EnableDeepLinking();
                 swagger.DisplayOperationId();

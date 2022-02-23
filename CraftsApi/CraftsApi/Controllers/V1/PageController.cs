@@ -5,6 +5,7 @@ using CraftsApi.Service;
 using CraftsApi.Service.Hubs;
 using CraftsApi.Service.Requests;
 using CraftsApi.Service.ViewModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,8 +33,8 @@ namespace CraftsApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPages()
         {
-            var pages = await _pageService.GetPagesAsync();
-            return new OkObjectResult(pages.ToList());
+            List<Page> pages = await _pageService.GetPagesAsync();
+            return Ok(pages);
         }
 
         [AllowAnonymous]
@@ -42,18 +43,18 @@ namespace CraftsApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPage(int pageId)
         {
-            var page = await _pageService.GetPageAsync(pageId);
-            return new OkObjectResult(page);
+            Page page = await _pageService.GetPageAsync(pageId);
+            return Ok(page);
         }
 
         [AllowAnonymous]
-        [HttpGet]
+        [HttpGet("{pageLink}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPageByLink(string pageLink)
         {
-            var page = await _pageService.GetPageByLinkAsync(pageLink);
-            return new OkObjectResult(page);
+            Page page = await _pageService.GetPageByLinkAsync(pageLink);
+            return Ok(page);
         }
 
         [AllowAnonymous]
@@ -62,8 +63,8 @@ namespace CraftsApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPageByUid(string pageUid)
         {
-            var page = await _pageService.GetPageByUidAsync(pageUid);
-            return new OkObjectResult(page);
+            Page page = await _pageService.GetPageByUidAsync(pageUid);
+            return Ok(page);
         }
 
         [AllowAnonymous]
@@ -72,10 +73,11 @@ namespace CraftsApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetDefaultPage()
         {
-            var page = await _pageService.GetDefaultPageAsync();
-            return new OkObjectResult(page);
+            Page page = await _pageService.GetDefaultPageAsync();
+            return Ok(page);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -83,25 +85,27 @@ namespace CraftsApi.Controllers.V1
         {
             bool pageAdded = await _pageService.AddPageAsync(addPageRequest);
             await _pageHubContext.Clients.All.SendAsync("pagesReceived", _pageService.GetPagesAsync());
-            return new OkObjectResult(pageAdded);
+            return Ok(pageAdded);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdatePage(UpdatePageRequest updatePageRequest)
         {
             bool pageUpdated = await _pageService.UpdatePageAsync(updatePageRequest);
-            return new OkObjectResult(pageUpdated);
+            return Ok(pageUpdated);
         }
 
-        [HttpDelete]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpDelete("pageId")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePage(int pageId)
         {
             bool pageDeleted = await _pageService.DeletePageAsync(pageId);
-            return new OkObjectResult(pageDeleted);
+            return Ok(pageDeleted);
         }
     }
 }

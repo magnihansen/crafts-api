@@ -27,28 +27,28 @@ namespace CraftsApi.Controllers.V1
         }
 
         [HttpGet]
-        [ProducesDefaultResponseType]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<User>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _userService.GetUsersAsync();
-            return new OkObjectResult(users.ToList());
+            return Ok(users.ToList());
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUser(int userId)
         {
             var user = await _userService.GetUserAsync(userId);
-            return new OkObjectResult(user);
+            return Ok(user);
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -64,37 +64,40 @@ namespace CraftsApi.Controllers.V1
             {
                 return NotFound();
             }
-            return new OkObjectResult(user);
+            return Ok(user);
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddUser(AddUserRequest addUserRequest)
         {
             bool userAdded = await _userService.AddUserAsync(addUserRequest);
-            return new OkObjectResult(userAdded);
+            return Ok(userAdded);
         }
 
         [HttpPut]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateUser(UpdateUserRequest updateUserRequest)
         {
             bool userUpdated = await _userService.UpdateUserAsync(updateUserRequest);
-            return new OkObjectResult(userUpdated);
+            return Ok(userUpdated);
         }
 
         [HttpDelete]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteUser(int userId)
         {
             bool userDeleted = await _userService.DeleteUserAsync(userId);
-            return new OkObjectResult(userDeleted);
+            return Ok(userDeleted);
         }
     }
 }

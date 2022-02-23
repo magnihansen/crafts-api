@@ -33,7 +33,8 @@ namespace CraftsApi.Controllers.V1
                 {
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 };
-                return Ok(JsonConvert.SerializeObject(fileUploadResponse, serializerSettings));
+                string result = JsonConvert.SerializeObject(fileUploadResponse, serializerSettings);
+                return Ok(result);
             }
         }
     }

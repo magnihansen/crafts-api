@@ -27,7 +27,7 @@ namespace CraftsApi.Controllers.V1
             {
                 return NotFound(contact);
             }
-            return new OkObjectResult(contact);
+            return Ok(contact);
         }
 
         [HttpGet]
@@ -35,7 +35,7 @@ namespace CraftsApi.Controllers.V1
         public async Task<IActionResult> GetContacts()
         {
             List<Service.ViewModels.Contact> contacts = await _dataService.GetContactsAsync();
-            return new OkObjectResult(contacts);
+            return Ok(contacts);
         }
     }
 }

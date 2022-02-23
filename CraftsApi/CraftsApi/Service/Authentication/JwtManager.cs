@@ -20,7 +20,7 @@ namespace CraftsApi.Service.Authentication
         {
             _userService = userService;
             _configuration = configuration;
-            _key = _configuration["Jwt:SecretKey"].ToString();
+            _key = _configuration["Jwt:SecurityKey"].ToString();
         }
 
         public async Task<string> Authenticate(string username, string password)
@@ -42,23 +42,23 @@ namespace CraftsApi.Service.Authentication
 
         private string GenerateToken(ViewModels.User user)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecurityKey"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-            new Claim("fullName", user.Firstname + " " + user.Lastname),
-            new Claim("id", user.Id.ToString()),
-            new Claim("userData", JsonConvert.SerializeObject(user)),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Aud, _configuration["Jwt:Audience"]),
-            new Claim(JwtRegisteredClaimNames.Iss, _configuration["Jwt:Issuer"])
-        };
+                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+                new Claim("fullName", user.Firstname + " " + user.Lastname),
+                new Claim("id", user.Id.ToString()),
+                new Claim("userData", JsonConvert.SerializeObject(user)),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Aud, _configuration["Jwt:ValidAudience"]),
+                new Claim(JwtRegisteredClaimNames.Iss, _configuration["Jwt:ValidIssuer"])
+            };
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: _configuration["Jwt:ValidIssuer"],
+                audience: _configuration["Jwt:ValidAudience"],
                 claims: claims,
                 expires: DateTime.Now.AddDays(7),
                 signingCredentials: credentials
