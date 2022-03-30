@@ -16,11 +16,6 @@ namespace CraftsApi.Service.ViewModels
                 throw new ArgumentException($"'{nameof(title)}' cannot be null or whitespace", nameof(title));
             }
 
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                throw new ArgumentException($"'{nameof(content)}' cannot be null or whitespace", nameof(content));
-            }
-
             if (string.IsNullOrWhiteSpace(pageRank))
             {
                 throw new ArgumentException($"'{nameof(pageRank)}' cannot be null or whitespace", nameof(pageRank));

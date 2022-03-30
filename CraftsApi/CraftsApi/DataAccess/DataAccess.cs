@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CraftsApi.Helpers;
 using Dapper;
+using Microsoft.AspNetCore.Hosting;
 using MySqlConnector;
 
 namespace CraftsApi.DataAccess
@@ -11,10 +14,12 @@ namespace CraftsApi.DataAccess
     public class DataAccess : IDataAccess
     {
         private readonly string _connectionString;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public DataAccess(string connectionString)
+        public DataAccess(string connectionString, IWebHostEnvironment webHostEnvironment)
         {
             _connectionString = connectionString;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<T> LoadSingleData<T, U>(string sql, U parameters)
@@ -39,6 +44,11 @@ namespace CraftsApi.DataAccess
 
         public async Task<int> SaveData<T>(string sql, T parameters)
         {
+            using (StreamWriter file = new(_webHostEnvironment.WebRootPath + "SaveData.txt", append: true))
+            {
+                await file.WriteLineAsync(sql);
+            }
+
             using (IDbConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();

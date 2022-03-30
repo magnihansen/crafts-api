@@ -11,10 +11,11 @@
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile></DocumentationFile>
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>portable</DebugType>
+    <DebugType>full</DebugType>
     <WarningLevel>4</WarningLevel>
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>

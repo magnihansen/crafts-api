@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using CraftsApi.Service.Authentication;
 using CraftsApi.Service.Requests;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,23 @@ namespace CraftsApi.Controllers.V1
                 return BadRequest("Invalid login");
             }
             return Ok(token);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(string))]
+        public async Task<IActionResult> ValidateToken(string token)
+        {
+            Tuple<bool, string> tokenValidation = await Task.FromResult(_jwtManager.ValidateCurrentToken(token));
+            if (tokenValidation.Item1)
+            {
+                return Ok();
+            }
+            else
+            {
+                return Unauthorized(tokenValidation.Item2);
+            }
         }
     }
 }

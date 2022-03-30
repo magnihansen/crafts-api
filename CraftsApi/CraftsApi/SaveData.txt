@@ -1,0 +1,8 @@
+
+            DELETE FROM Page
+            WHERE Id = @PageId
+            
+
+            INSERT INTO Page (uid,title,parent,content,pagerank,link,active,createdby)
+            VALUES (@uid,@title,@parent,@content,@pagerank,@link,@active,@createdby)
+            

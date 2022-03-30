@@ -105,16 +105,16 @@ namespace CraftsApi.Application
             ";
             int updated = await _dataAccess.SaveData<dynamic>(sql, new
             {
-                @id = page.Id,
-                @uid = page.Uid,
-                @title = page.Title,
-                @parent = page.ParentUid,
-                @content = page.Content,
-                @pagerank = page.PageRank,
-                @link = page.Link,
-                @active = page.Active,
-                @updateddate = page.UpdatedDate.ConvertToMySqlDateTime(),
-                @updatedby = page.UpdatedBy
+                id = page.Id,
+                uid = page.Uid,
+                title = page.Title,
+                parent = page.ParentUid,
+                content = page.Content,
+                pagerank = page.PageRank,
+                link = page.Link,
+                active = page.Active,
+                updateddate = page.UpdatedDate.ConvertToMySqlDateTime(),
+                updatedby = page.UpdatedBy
             });
             return updated > 0;
         }
@@ -127,7 +127,7 @@ namespace CraftsApi.Application
             ";
             int deleted = await _dataAccess.SaveData<dynamic>(sql, new
             {
-                @PageId = pageId
+                PageId = pageId
             });
             return deleted > 0;
         }

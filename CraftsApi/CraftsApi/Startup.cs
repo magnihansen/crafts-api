@@ -20,11 +20,13 @@ namespace CraftsApi
 {
     public class Startup
     {
-        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             Configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IConfiguration Configuration { get; }
@@ -39,7 +41,10 @@ namespace CraftsApi
             services.AddSingleton<IPageWorker, PageWorker>();
 
             services.AddSingleton<IDataAccess>(_ =>
-                new DataAccess.DataAccess(Configuration["ConnectionStrings:Default"].ToString())
+                new DataAccess.DataAccess(
+                    Configuration["ConnectionStrings:Default"].ToString(),
+                    _webHostEnvironment
+                )
             );
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<IUserService, UserService>();
@@ -133,8 +138,10 @@ namespace CraftsApi
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                
             }
+
+            app.UseDeveloperExceptionPage();
 
             app.UseHttpsRedirection();
             app.UseRouting();

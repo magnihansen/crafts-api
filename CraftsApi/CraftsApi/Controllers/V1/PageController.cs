@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CraftsApi.Helpers;
 using CraftsApi.Service;
 using CraftsApi.Service.Hubs;
 using CraftsApi.Service.Requests;
@@ -91,17 +92,15 @@ namespace CraftsApi.Controllers.V1
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdatePage(UpdatePageRequest updatePageRequest)
         {
             bool pageUpdated = await _pageService.UpdatePageAsync(updatePageRequest);
             return Ok(pageUpdated);
         }
 
+        [HttpDelete]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("pageId")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePage(int pageId)
         {
             bool pageDeleted = await _pageService.DeletePageAsync(pageId);
