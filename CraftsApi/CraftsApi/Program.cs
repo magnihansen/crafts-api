@@ -14,29 +14,6 @@ namespace CraftsApi
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
-
-            //var filePath = Path.Combine(Directory.GetCurrentDirectory(), "CraftsApi.txt");
-            //Log.Logger = new LoggerConfiguration()
-            //                .MinimumLevel.Debug()
-            //                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-            //                .Enrich.FromLogContext()
-            //                .WriteTo.File(filePath)
-            //                .CreateLogger();
-            //try
-            //{
-            //    Log.Information("Starting up the Service");
-            //    CreateHostBuilder(args).Build().Run();
-            //    return;
-            //}
-            //catch (Exception ex)
-            //{
-            //    Log.Fatal(ex, "There was a problem starting Service");
-            //    return;
-            //}
-            //finally
-            //{
-            //    Log.CloseAndFlush();
-            //}
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

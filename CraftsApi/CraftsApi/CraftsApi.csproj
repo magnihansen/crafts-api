@@ -20,9 +20,9 @@
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="MySqlConnector" Version="2.1.7" />
+    <PackageReference Include="MySqlConnector" Version="2.1.8" />
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
@@ -49,6 +49,7 @@
     <Folder Include="Helpers\" />
     <Folder Include="Swagger\" />
     <Folder Include="Controllers\V1\" />
+    <Folder Include="Auth\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
@@ -57,5 +58,6 @@
     <None Remove="Controllers\V1\" />
     <None Remove="Microsoft.AspNetCore.Mvc.Versioning" />
     <None Remove="Newtonsoft.Json" />
+    <None Remove="Auth\" />
   </ItemGroup>
 </Project>

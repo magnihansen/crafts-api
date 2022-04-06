@@ -21,13 +21,13 @@ namespace CraftsApi.Controllers.V1
         [AllowAnonymous]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(string))]
         public async Task<IActionResult> Login(AuthenticateRequest authenticateRequest)
         {
             string token = await _jwtManager.Authenticate(authenticateRequest.Username, authenticateRequest.Password);
             if (token == null)
             {
-                return BadRequest("Invalid login");
+                return Unauthorized("Invalid login");
             }
             return Ok(token);
         }

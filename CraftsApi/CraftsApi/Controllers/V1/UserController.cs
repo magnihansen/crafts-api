@@ -30,27 +30,30 @@ namespace CraftsApi.Controllers.V1
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<User>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _userService.GetUsersAsync();
+            List<User> users = await _userService.GetUsersAsync();
+
             return Ok(users.ToList());
         }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUser(int userId)
         {
             var user = await _userService.GetUserAsync(userId);
+            if (user is null)
+            {
+                return NotFound("User not found");
+            }
+
             return Ok(user);
         }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesDefaultResponseType]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserByIdentity()
@@ -63,7 +66,7 @@ namespace CraftsApi.Controllers.V1
             User user = await _jwtManager.GetUserByIdentity(identity);
             if (user == null)
             {
-                return NotFound();
+                return NotFound("User identity not found");
             }
             return Ok(user);
         }

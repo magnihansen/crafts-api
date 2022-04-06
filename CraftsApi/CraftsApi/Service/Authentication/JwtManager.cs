@@ -88,6 +88,10 @@ namespace CraftsApi.Service.Authentication
                     IssuerSigningKey = mySecurityKey
                 }, out SecurityToken validatedToken);
             }
+            catch (Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException stiie)
+            {
+                return new Tuple<bool, string>(false, stiie.Message);
+            }
             catch (SecurityTokenExpiredException stee)
             {
                 return new Tuple<bool, string>(false, stee.Message);

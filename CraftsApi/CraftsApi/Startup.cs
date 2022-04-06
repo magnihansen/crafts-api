@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 using CraftsApi.Application;
+using CraftsApi.Auth;
 using CraftsApi.DataAccess;
 using CraftsApi.Service;
 using CraftsApi.Service.Authentication;
@@ -54,6 +55,9 @@ namespace CraftsApi
             services.AddSingleton<IUserApplication, UserApplication>();
             services.AddSingleton<IDataApplication, DataApplication>();
 
+            services.AddSingleton<AuthTokenAuthenticationHandler>();
+            services.AddSingleton<UserClaimsHandler>();
+
             services.AddSwaggerGen(swagger =>
             {
                 swagger.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
@@ -63,7 +67,7 @@ namespace CraftsApi
                 {
                     Version = "v1",
                     Title = "Crafts.fo API",
-                    Description = "ASP.NET Core 5.0 Web API"
+                    Description = "ASP.NET 5 Core Web API"
                 });
                 // To Enable authorization using Swagger (JWT)  
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -96,23 +100,23 @@ namespace CraftsApi
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Jwt:ValidIssuer"].ToString(),
-                    ValidAudience = Configuration["Jwt:ValidAudience"].ToString(),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecurityKey"].ToString())),
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
+            }).AddAuthTokenAuthentication(options => { });
+            //.AddJwtBearer(options =>
+            //{
+            //    options.RequireHttpsMetadata = false;
+            //    options.SaveToken = true;
+            //    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            //    {
+            //        ValidateIssuer = true,
+            //        ValidateAudience = true,
+            //        ValidateLifetime = true,
+            //        ValidateIssuerSigningKey = true,
+            //        ValidIssuer = Configuration["Jwt:ValidIssuer"].ToString(),
+            //        ValidAudience = Configuration["Jwt:ValidAudience"].ToString(),
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecurityKey"].ToString())),
+            //        ClockSkew = TimeSpan.Zero
+            //    };
+            //});
 
             services.AddCors(options =>
             {
@@ -138,10 +142,8 @@ namespace CraftsApi
         {
             if (env.IsDevelopment())
             {
-                
+                app.UseDeveloperExceptionPage();
             }
-
-            app.UseDeveloperExceptionPage();
 
             app.UseHttpsRedirection();
             app.UseRouting();
