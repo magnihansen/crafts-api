@@ -5,7 +5,8 @@ namespace CraftsApi.Service.ViewModels
     {
         public User(int id, string username, string firstname, string lastname, string address,
             string zip, string city, string country, string email, string phone, bool active,
-            DateTime createdDate, string createdBy, DateTime updatedDate, string updatedBy)
+            DateTime createdDate, string createdBy, DateTime updatedDate, string updatedBy,
+            bool isAdmin)
         {
             if (string.IsNullOrWhiteSpace(username))
             {
@@ -44,6 +45,7 @@ namespace CraftsApi.Service.ViewModels
             Phone = phone ?? throw new ArgumentNullException(nameof(phone));
             Active = active;
             CreatedBy = createdBy;
+            IsAdmin = isAdmin;
         }
 
         public int Id { get; }
@@ -69,5 +71,7 @@ namespace CraftsApi.Service.ViewModels
         public bool Active { get; }
 
         public string CreatedBy { get; }
+
+        public bool IsAdmin { get; }
     }
 }

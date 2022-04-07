@@ -34,14 +34,14 @@ namespace CraftsApi.Controllers.V1
 
         [AllowAnonymous]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(string))]
         public async Task<IActionResult> ValidateToken(string token)
         {
             Tuple<bool, string> tokenValidation = await Task.FromResult(_jwtManager.ValidateCurrentToken(token));
             if (tokenValidation.Item1)
             {
-                return Ok();
+                return Ok(true);
             }
             else
             {

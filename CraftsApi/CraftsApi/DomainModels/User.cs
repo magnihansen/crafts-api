@@ -25,5 +25,7 @@
         public string Phone { get; set; }
 
         public bool Active { get; set; }
+
+        public bool IsAdmin { get; set; }
     }
 }

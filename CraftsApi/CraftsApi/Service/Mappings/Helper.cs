@@ -104,7 +104,8 @@ namespace CraftsApi.Service.Mappings
                 user.CreatedDate,
                 user.CreatedBy,
                 user.UpdatedDate,
-                user.UpdatedBy
+                user.UpdatedBy,
+                user.IsAdmin
             );
         }
 
