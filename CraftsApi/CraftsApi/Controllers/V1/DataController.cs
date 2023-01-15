@@ -34,7 +34,7 @@ namespace CraftsApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Contact>))]
         public async Task<IActionResult> GetContacts()
         {
-            List<Service.ViewModels.Contact> contacts = await _dataService.GetContactsAsync();
+            List<Service.ViewModels.ContactVM> contacts = await _dataService.GetContactsAsync();
             return Ok(contacts);
         }
     }

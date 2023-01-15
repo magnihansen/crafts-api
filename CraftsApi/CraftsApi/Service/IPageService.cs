@@ -1,25 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using CraftsApi.Service.Requests;
+using CraftsApi.Controllers.V1.Requests;
 
 namespace CraftsApi.Service
 {
     public interface IPageService
     {
-        Task<List<ViewModels.Page>> GetPagesAsync();
+        Task<List<ViewModels.PageVM>> GetPagesAsync(string host);
 
-        Task<ViewModels.Page> GetPageAsync(int pageId);
+        Task<ViewModels.PageVM> GetPageAsync(string host, int pageId);
 
-        Task<ViewModels.Page> GetPageByLinkAsync(string pageLink);
+        Task<ViewModels.PageVM> GetPageByLinkAsync(string host, string pageLink);
 
-        Task<ViewModels.Page> GetPageByUidAsync(string pageUid);
+        Task<ViewModels.PageVM> GetDefaultPageAsync(string host);
 
-        Task<ViewModels.Page> GetDefaultPageAsync();
+        Task<ViewModels.PageVM> InsertPageAsync(string host, DomainModels.Page page);
 
-        Task<bool> AddPageAsync(AddPageRequest addPageReqest);
+        Task<bool> UpdatePageAsync(string host, DomainModels.Page page);
 
-        Task<bool> UpdatePageAsync(UpdatePageRequest updatePageRequest);
-
-        Task<bool> DeletePageAsync(int pageId);
+        Task<bool> DeletePageAsync(string host, int pageId);
     }
 }

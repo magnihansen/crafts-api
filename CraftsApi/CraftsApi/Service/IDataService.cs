@@ -6,7 +6,7 @@ namespace CraftsApi.Service
 {
     public interface IDataService
     {
-        Task<Contact> GetContactAsync(int contactId);
-        Task<List<Contact>> GetContactsAsync();
+        Task<ContactVM> GetContactAsync(int contactId);
+        Task<List<ContactVM>> GetContactsAsync();
     }
 }

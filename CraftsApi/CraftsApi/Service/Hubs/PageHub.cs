@@ -22,7 +22,7 @@ namespace CraftsApi.Service.Hubs
         public async Task GetPages()
         {
             _logger.LogInformation($"Page hub runned on: {DateTime.Now}");
-            await Clients.All.SendAsync("pagesReceived", await _pageService.GetPagesAsync());
+            await Clients.All.SendAsync("pagesReceived", await _pageService.GetPagesAsync("localhost"));
         }
     }
 }

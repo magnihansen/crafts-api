@@ -15,29 +15,41 @@ namespace CraftsApi.Auth
         private readonly RequestDelegate _next;
         private readonly IConfiguration _configuration;
         private readonly string _securityKey;
+        private readonly string _validIssuer;
+        private readonly string _validAudience;
 
         private const string SecurityKey = "Jwt:SecurityKey";
+        private const string ValidIssuer = "Jwt:ValidIssuer";
+        private const string ValidAudience = "Jwt:ValidAudience";
 
         public JwtMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
             _configuration = configuration;
             _securityKey = _configuration[SecurityKey].ToString();
+            _validIssuer = _configuration[ValidIssuer].ToString();
+            _validAudience = _configuration[ValidAudience].ToString();
         }
 
         public async Task Invoke(HttpContext context, IUserService userService)
         {
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            //TODO: Fetch referer IP and use it as DomainId
+
+            string token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            if (token is null)
+            {
+                token = context.Request.Query["token"].ToString();
+            }
 
             if (token != null)
             {
-                attachUserToContext(context, userService, token);
+                AttachUserToContext(context, userService, token);
             }
 
             await _next(context);
         }
 
-        private void attachUserToContext(HttpContext context, IUserService userService, string token)
+        private void AttachUserToContext(HttpContext context, IUserService userService, string token)
         {
             try
             {
@@ -49,7 +61,7 @@ namespace CraftsApi.Auth
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                    ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
 

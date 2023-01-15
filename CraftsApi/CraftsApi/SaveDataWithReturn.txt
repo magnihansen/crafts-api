@@ -1,0 +1,65 @@
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            OUTPUT INSERTED
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby)
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            OUTPUT INSERTED.*
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby)
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby)
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            
+
+            INSERT INTO Page (DomainId,Uid,ParentId,PageTypeId,Title,Content,Sort,Link,IsRouterLink,Active,Createdby)
+            VALUES (@DomainId,@Uid,@ParentId,@PageTypeId,@Title,@Content,@Sort,@Link,@IsRouterLink,@Active,@Createdby);
+            SELECT LAST_INSERT_ID();
+            

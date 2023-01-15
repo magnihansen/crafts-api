@@ -10,5 +10,7 @@ namespace CraftsApi.DataAccess
         Task<T> LoadSingleData<T, U>(string sql, U parameters);
 
         Task<int> SaveData<T>(string sql, T parameters);
+
+        Task<int> SaveDataWithReturn<T>(string sql, T parameters);
     }
 }

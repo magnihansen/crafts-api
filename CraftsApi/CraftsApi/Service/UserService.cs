@@ -1,52 +1,50 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using CraftsApi.Application;
+using CraftsApi.Repository;
 using CraftsApi.Service.Mappings;
-using CraftsApi.Service.Requests;
+using CraftsApi.Controllers.V1.Requests;
 
 namespace CraftsApi.Service
 {
     public class UserService : IUserService
     {
-        private readonly IUserApplication _userApplication;
+        private readonly IUserRepository _userApplication;
 
-        public UserService(IUserApplication userApplication)
+        public UserService(IUserRepository userApplication)
         {
             _userApplication = userApplication;
         }
 
-        public async Task<List<ViewModels.User>> GetUsersAsync()
+        public async Task<List<ViewModels.UserVM>> GetUsersAsync()
         {
             List<DomainModels.User> users = await _userApplication.GetUsersAsync();
-            return users.MapListOfDomainUsersToListOfViewUsers();
+            return users.MapUserToUserVM();
         }
 
-        public async Task<ViewModels.User> GetUserAsync(int userId)
+        public async Task<ViewModels.UserVM> GetUserAsync(int userId)
         {
             DomainModels.User user = await _userApplication.GetUserAsync(userId);
-            return user.MapDomainUserToViewUser();
+            return user.MapUserToUserVM();
         }
 
-        public async Task<ViewModels.User> GetUserByCredientialsAsync(string username, string password)
+        public async Task<ViewModels.UserVM> GetUserByCredientialsAsync(string username, string password)
         {
             DomainModels.User user = await _userApplication.GetUserByCredientialsAsync(username, password);
             if (user == null)
             {
                 return null;
             }
-            return user.MapDomainUserToViewUser();
+            return user.MapUserToUserVM();
         }
 
-        public async Task<bool> AddUserAsync(AddUserRequest addUserRequest)
+        public async Task<bool> AddUserAsync(DomainModels.User user)
         {
-            var user = addUserRequest.MapAddUserRequestToUser();
-            var added = await _userApplication.AddUserAsync(user);
+            var added = await _userApplication.InsertUserAsync(user);
             return added;
         }
 
-        public async Task<bool> UpdateUserAsync(UpdateUserRequest updateUserRequest)
+        public async Task<bool> UpdateUserAsync(DomainModels.User user)
         {
-            var user = updateUserRequest.MapUpdateUserRequestToUser();
             var updated = await _userApplication.UpdateUserAsync(user);
             return updated;
         }

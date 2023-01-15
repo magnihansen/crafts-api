@@ -1,7 +1,5 @@
-using System;
-using System.Linq;
 using System.Text;
-using CraftsApi.Application;
+using CraftsApi.Repository;
 using CraftsApi.Auth;
 using CraftsApi.DataAccess;
 using CraftsApi.Service;
@@ -14,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace CraftsApi
@@ -35,6 +34,7 @@ namespace CraftsApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddAuthorization();
             services.AddSingleton<IJwtManager, JwtManager>();
 
             // for background service worker
@@ -46,15 +46,29 @@ namespace CraftsApi
                     _webHostEnvironment
                 )
             );
+
+            services.AddSingleton<IImageGalleryService, ImageGalleryService>();
+            services.AddSingleton<IImageGalleryTypeService, ImageGalleryTypeService>();
+            services.AddSingleton<ICdnTokenService, CdnTokenService>();
             services.AddSingleton<IPageService, PageService>();
+            services.AddSingleton<IPageTypeService, PageTypeService>();
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<ISettingService, SettingService>();
             services.AddSingleton<IDataService, DataService>();
 
-            services.AddSingleton<IPageApplication, PageApplication>();
-            services.AddSingleton<IUserApplication, UserApplication>();
-            services.AddSingleton<IDataApplication, DataApplication>();
+            services.AddSingleton<IImageGalleryRepository, ImageGalleryRepository>();
+            services.AddSingleton<IImageGalleryTypeRepository, ImageGalleryTypeRepository>();
+            services.AddSingleton<ICdnTokenRepository, CdnTokenRepository>();
+            services.AddSingleton<IPageRepository, PageRepository>();
+            services.AddSingleton<IPageTypeRepository, PageTypeRepository>();
+            services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IDomainRepository, DomainRepository>();
+            services.AddSingleton<ISettingRepository, SettingRepository>();
+            services.AddSingleton<IDataRepository, DataRepository>();
 
-            services.AddSingleton<AuthTokenAuthenticationHandler>();
+            services.AddSingleton<IJWTManagerRepository, JWTManagerRepository>();
+
+            services.AddSingleton<BasicAuthenticationHandler>(); // handles auth
             services.AddSingleton<UserClaimsHandler>();
 
             services.AddSwaggerGen(swagger =>
@@ -63,13 +77,13 @@ namespace CraftsApi
                 {
                     Version = "v1",
                     Title = "Crafts.fo API",
-                    Description = "ASP.NET 5 Core Web API"
+                    Description = ".NET 6 Core Web API"
                 });
 
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
-                    Description = "Please insert JWT with Bearer into field",
+                    Description = "Please type 'Bearer' followed by the token into field",
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
@@ -88,18 +102,38 @@ namespace CraftsApi
                 });
             });
 
-            services.AddAuthentication(option =>
+            services.AddAuthentication(x =>
             {
-                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer();
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(o =>
+            {
+                var Key = Encoding.UTF8.GetBytes(Configuration["Jwt:SecurityKey"]);
+                o.SaveToken = true;
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["Jwt:ValidIssuer"],
+                    ValidAudience = Configuration["Jwt:ValidAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Key)
+                };
+            });
 
             services.AddCors(options =>
             {
                 options.AddPolicy(
                     name: MyAllowSpecificOrigins,
                     builder => builder
-                        .WithOrigins("http://localhost:4200", "https://localhost:4200", "http://89.187.103.53", "http://instantcms.dk")
+                        .WithOrigins(
+                            "http://localhost:4200",
+                            "https://localhost:4200",
+                            "http://89.187.103.53",
+                            "http://craftsfo.instantcms.dk",
+                            "http://beautify-by-h.instantcms.dk"
+                        )
                         .AllowCredentials()
                         .AllowAnyHeader()
                         .AllowAnyMethod()
@@ -128,8 +162,8 @@ namespace CraftsApi
 
             app.UseCors(MyAllowSpecificOrigins);
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             // app.UseSwaggerAuthorized(Configuration["AllowSwaggerAccessFor"]);
@@ -140,6 +174,7 @@ namespace CraftsApi
             app.UseSwaggerUI(swagger =>
             {
                 swagger.SwaggerEndpoint("v1/swagger.json", "CraftsApi V1");
+                swagger.DefaultModelsExpandDepth(-1);
                 swagger.DisplayRequestDuration();
                 swagger.EnableDeepLinking();
                 swagger.DisplayOperationId();

@@ -30,7 +30,7 @@ namespace CraftsApi.Service.Background
                 Interlocked.Increment(ref number);
                 _logger.LogInformation($"Worker printing number {number}");
 
-                await _hubContext.Clients.All.SendAsync("pagesReceived", await _pageService.GetPagesAsync());
+                await _hubContext.Clients.All.SendAsync("pagesReceived", await _pageService.GetPagesAsync("localhost"));
 
                 await Task.Delay(1000 * 5, cancellationToken);
             }

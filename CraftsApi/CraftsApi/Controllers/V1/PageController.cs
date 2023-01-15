@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using CraftsApi.DomainModels;
+using CraftsApi.Helpers;
 using CraftsApi.Service;
 using CraftsApi.Service.Hubs;
-using CraftsApi.Service.Requests;
+using CraftsApi.Controllers.V1.Requests;
 using CraftsApi.Service.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using CraftsApi.Service.Mappings;
 
 namespace CraftsApi.Controllers.V1
 {
@@ -28,80 +32,72 @@ namespace CraftsApi.Controllers.V1
 
         [AllowAnonymous]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Page>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PageVM>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPages()
         {
-            List<Page> pages = await _pageService.GetPagesAsync();
+            List<PageVM> pages = await _pageService.GetPagesAsync(Request.GetAddressHost());
             return Ok(pages);
         }
 
         [AllowAnonymous]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PageVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPage(int pageId)
         {
-            Page page = await _pageService.GetPageAsync(pageId);
+            PageVM page = await _pageService.GetPageAsync(Request.GetAddressHost(), pageId);
             return Ok(page);
         }
 
         [AllowAnonymous]
         [HttpGet("{pageLink}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PageVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPageByLink(string pageLink)
         {
-            Page page = await _pageService.GetPageByLinkAsync(pageLink);
+            PageVM page = await _pageService.GetPageByLinkAsync(Request.GetAddressHost(), pageLink);
             return Ok(page);
         }
 
         [AllowAnonymous]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPageByUid(string pageUid)
-        {
-            Page page = await _pageService.GetPageByUidAsync(pageUid);
-            return Ok(page);
-        }
-
-        [AllowAnonymous]
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Page))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PageVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetDefaultPage()
         {
-            Page page = await _pageService.GetDefaultPageAsync();
+            PageVM page = await _pageService.GetDefaultPageAsync(Request.GetAddressHost());
             return Ok(page);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PageVM))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddPage(AddPageRequest addPageRequest)
         {
-            bool pageAdded = await _pageService.AddPageAsync(addPageRequest);
-            await _pageHubContext.Clients.All.SendAsync("pagesReceived", _pageService.GetPagesAsync());
-            return Ok(pageAdded);
+            DomainModels.Page page = addPageRequest.MapAddPageRequestToPage();
+            PageVM insertedPage = await _pageService.InsertPageAsync(Request.GetAddressHost(), page);
+            await _pageHubContext.Clients.All.SendAsync(
+                "pagesReceived",
+                await _pageService.GetPagesAsync(Request.GetAddressHost())
+            );
+            return Ok(insertedPage);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> UpdatePage(UpdatePageRequest updatePageRequest)
         {
-            bool pageUpdated = await _pageService.UpdatePageAsync(updatePageRequest);
+            DomainModels.Page page = updatePageRequest.MapUpdatePageRequestToPage();
+            bool pageUpdated = await _pageService.UpdatePageAsync(Request.GetAddressHost(), page);
             return Ok(pageUpdated);
         }
 
         [HttpDelete]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> DeletePage(int pageId)
         {
-            bool pageDeleted = await _pageService.DeletePageAsync(pageId);
+            bool pageDeleted = await _pageService.DeletePageAsync(Request.GetAddressHost(), pageId);
             return Ok(pageDeleted);
         }
     }

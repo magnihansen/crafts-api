@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using CraftsApi.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -12,24 +13,26 @@ namespace CraftsApi.Service.Authentication
 {
     public class JwtManager : IJwtManager
     {
-        private readonly IConfiguration _configuration;
         private readonly string _key;
+        private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
+        private readonly IDomainRepository _domainRepository;
 
         private const string SecurityKey = "Jwt:SecurityKey";
         private const string ValidAudience = "Jwt:ValidAudience";
         private const string ValidIssuer = "Jwt:ValidIssuer";
 
-        public JwtManager(IUserService userService, IConfiguration configuration)
+        public JwtManager(IUserService userService, IConfiguration configuration, IDomainRepository domainRepository)
         {
             _userService = userService;
             _configuration = configuration;
+            _domainRepository = domainRepository;
             _key = _configuration[SecurityKey].ToString();
         }
 
         public async Task<string> Authenticate(string username, string password)
         {
-            ViewModels.User user = await _userService.GetUserByCredientialsAsync(username, password);
+            ViewModels.UserVM user = await _userService.GetUserByCredientialsAsync(username, password);
             if (user == null)
             {
                 return null;
@@ -37,14 +40,14 @@ namespace CraftsApi.Service.Authentication
             return GenerateToken(user);
         }
 
-        public async Task<ViewModels.User> GetUserByIdentity(ClaimsIdentity identity)
+        public async Task<ViewModels.UserVM> GetUserByIdentity(ClaimsIdentity identity)
         {
             string userData = identity.Claims.Where(p => p.Type == "userData").FirstOrDefault()?.Value;
-            ViewModels.User user = JsonConvert.DeserializeObject<ViewModels.User>(userData);
+            ViewModels.UserVM user = JsonConvert.DeserializeObject<ViewModels.UserVM>(userData);
             return await Task.Run(() => user);
         }
 
-        private string GenerateToken(ViewModels.User user)
+        private string GenerateToken(ViewModels.UserVM user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration[SecurityKey]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -54,7 +57,8 @@ namespace CraftsApi.Service.Authentication
                 new Claim(JwtRegisteredClaimNames.Sub, user.Username),
                 new Claim("fullName", user.Firstname + " " + user.Lastname),
                 new Claim("id", user.Id.ToString()),
-                new Claim("userData", JsonConvert.SerializeObject(user)),
+                new Claim("email", JsonConvert.SerializeObject(user.Email)),
+                new Claim("isAdmin", JsonConvert.SerializeObject(user.IsAdmin)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Aud, _configuration[ValidAudience]),
                 new Claim(JwtRegisteredClaimNames.Iss, _configuration[ValidIssuer])
@@ -64,7 +68,34 @@ namespace CraftsApi.Service.Authentication
                 issuer: _configuration[ValidIssuer],
                 audience: _configuration[ValidAudience],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(1), //.AddHours(8),
+                expires: DateTime.Now.AddHours(8),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<string> GenerateImageCdnToken(string host)
+        {
+            DomainModels.Domain domain = await _domainRepository.GetDomainAsync(host);
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration[SecurityKey]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, "ApiUser"),
+                new Claim("domainId", JsonConvert.SerializeObject(domain.Id)),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Aud, _configuration[ValidAudience]),
+                new Claim(JwtRegisteredClaimNames.Iss, _configuration[ValidIssuer])
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration[ValidIssuer],
+                audience: _configuration[ValidAudience],
+                claims: claims,
+                expires: DateTime.Now.AddHours(8),
                 signingCredentials: credentials
             );
 
@@ -73,7 +104,7 @@ namespace CraftsApi.Service.Authentication
 
         public Tuple<bool, string> ValidateCurrentToken(string token)
         {
-            var mySecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration[SecurityKey]));
+            byte[] signingKey = Encoding.UTF8.GetBytes(_configuration[SecurityKey]);
             var tokenHandler = new JwtSecurityTokenHandler();
 
             try
@@ -85,10 +116,10 @@ namespace CraftsApi.Service.Authentication
                     ValidateAudience = true,
                     ValidIssuer = _configuration[ValidIssuer],
                     ValidAudience = _configuration[ValidAudience],
-                    IssuerSigningKey = mySecurityKey
+                    IssuerSigningKey = new SymmetricSecurityKey(signingKey)
                 }, out SecurityToken validatedToken);
             }
-            catch (Microsoft.IdentityModel.Tokens.SecurityTokenInvalidIssuerException stiie)
+            catch (SecurityTokenInvalidIssuerException stiie)
             {
                 return new Tuple<bool, string>(false, stiie.Message);
             }

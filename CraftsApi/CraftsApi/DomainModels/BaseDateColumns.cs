@@ -1,7 +1,7 @@
 ﻿using System;
 namespace CraftsApi.DomainModels
 {
-    public class BaseDateColumns
+    public abstract class BaseDateColumns
     {
         public DateTime CreatedDate { get; set; }
 

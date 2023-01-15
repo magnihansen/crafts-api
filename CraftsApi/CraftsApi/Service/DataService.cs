@@ -1,29 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using CraftsApi.Application;
+using CraftsApi.Repository;
 using CraftsApi.Service.Mappings;
 
 namespace CraftsApi.Service
 {
     public class DataService : IDataService
     {
-        private readonly IDataApplication _dataApplication;
+        private readonly IDataRepository _dataApplication;
 
-        public DataService(IDataApplication dataApplication)
+        public DataService(IDataRepository dataApplication)
         {
             _dataApplication = dataApplication;
         }
 
-        public async Task<ViewModels.Contact> GetContactAsync(int contactId)
+        public async Task<ViewModels.ContactVM> GetContactAsync(int contactId)
         {
             DomainModels.Contact contact = await _dataApplication.GetContactAsync(contactId);
             return contact.MapDomainContactToViewContact();
         }
 
-        public async Task<List<ViewModels.Contact>> GetContactsAsync()
+        public async Task<List<ViewModels.ContactVM>> GetContactsAsync()
         {
             List<DomainModels.Contact> contacts = await _dataApplication.GetContactsAsync();
-            return contacts.MapListOfDomainContactsToListOfViewContacts();
+            return contacts.MapContactToContactVM();
         }
     }
 }

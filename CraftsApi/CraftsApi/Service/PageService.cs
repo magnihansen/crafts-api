@@ -1,67 +1,75 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using CraftsApi.Application;
+using CraftsApi.Repository;
 using CraftsApi.Service.Mappings;
-using CraftsApi.Service.Requests;
+using CraftsApi.Controllers.V1.Requests;
 
 namespace CraftsApi.Service
 {
     public class PageService : IPageService
     {
-        private readonly IPageApplication _pageApplication;
+        private readonly IPageRepository _pageRepository;
+        private readonly IDomainRepository _domainRepository;
 
-        public PageService(IPageApplication pageApplication)
+        public PageService(IPageRepository pageApplication, IDomainRepository domainRepository)
         {
-            _pageApplication = pageApplication;
+            _pageRepository = pageApplication;
+            _domainRepository = domainRepository;
         }
 
-        public async Task<List<ViewModels.Page>> GetPagesAsync()
+        public async Task<List<ViewModels.PageVM>> GetPagesAsync(string host)
         {
-            List<DomainModels.Page> pages = await _pageApplication.GetPagesAsync();
-            return pages.MapListOfDomainPagesToListOfViewPages();
+            List<DomainModels.Page> pages = await _pageRepository.GetPagesAsync(host);
+            return pages.MapPageToPageVM();
         }
 
-        public async Task<ViewModels.Page> GetPageAsync(int pageId)
+        public async Task<ViewModels.PageVM> GetPageAsync(string host, int pageId)
         {
-            DomainModels.Page page = await _pageApplication.GetPageAsync(pageId);
-            return page.MapDomainPageToViewPage();
+            DomainModels.Page page = await _pageRepository.GetPageAsync(host, pageId);
+            return page.MapPageToPageVM();
         }
 
-        public async Task<ViewModels.Page> GetPageByLinkAsync(string pageLink)
+        public async Task<ViewModels.PageVM> GetPageByLinkAsync(string host, string pageLink)
         {
-            DomainModels.Page page = await _pageApplication.GetPageByLinkAsync(pageLink);
-            return page.MapDomainPageToViewPage();
+            DomainModels.Page page = await _pageRepository.GetPageByLinkAsync(host, pageLink);
+            return page.MapPageToPageVM();
         }
 
-        public async Task<ViewModels.Page> GetPageByUidAsync(string pageUid)
+        public async Task<ViewModels.PageVM> GetDefaultPageAsync(string host)
         {
-            DomainModels.Page page = await _pageApplication.GetPageByUidAsync(pageUid);
-            return page.MapDomainPageToViewPage();
+            DomainModels.Page page = await _pageRepository.GetDefaultPageAsync(host);
+            return page.MapPageToPageVM();
         }
 
-        public async Task<ViewModels.Page> GetDefaultPageAsync()
+        public async Task<ViewModels.PageVM> InsertPageAsync(string host, DomainModels.Page page)
         {
-            DomainModels.Page page = await _pageApplication.GetDefaultPageAsync();
-            return page.MapDomainPageToViewPage();
+            DomainModels.Domain domain = await _domainRepository.GetDomainAsync(host);
+            DomainModels.Page insertedPage = await _pageRepository.InsertPageAsync(
+                host: host,
+                domainId: domain.Id,
+                uid: page.Uid,
+                parentId: page.ParentId,
+                pageTypeId: page.PageTypeId,
+                title: page.Title,
+                content: page.Content,
+                sort: page.Sort,
+                link: page.Link,
+                isRouterLink: page.IsRouterLink,
+                active: page.Active,
+                createdBy: page.CreatedBy
+            );
+            return insertedPage.MapPageToPageVM();
         }
 
-        public async Task<bool> AddPageAsync(AddPageRequest addPageReqest)
+        public async Task<bool> UpdatePageAsync(string host, DomainModels.Page page)
         {
-            DomainModels.Page page = addPageReqest.MapAddPageRequestToPage();
-            var added = await _pageApplication.AddPageAsync(page);
-            return added;
-        }
-
-        public async Task<bool> UpdatePageAsync(UpdatePageRequest updatePageRequest)
-        {
-            var page = updatePageRequest.MapUpdatePageRequestToPage();
-            var updated = await _pageApplication.UpdatePageAsync(page);
+            bool updated = await _pageRepository.UpdatePageAsync(host, page);
             return updated;
         }
 
-        public async Task<bool> DeletePageAsync(int pageId)
+        public async Task<bool> DeletePageAsync(string host, int pageId)
         {
-            bool deleted = await _pageApplication.DeletePageAsync(pageId);
+            bool deleted = await _pageRepository.DeletePageAsync(host, pageId);
             return deleted;
         }
     }

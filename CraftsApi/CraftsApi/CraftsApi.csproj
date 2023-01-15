@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ReleaseVersion>0.2</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
     <OutputType>WinExe</OutputType>
@@ -20,27 +20,25 @@
     <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="MySqlConnector" Version="2.1.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    <PackageReference Include="MySqlConnector" Version="2.2.4" />
     <PackageReference Include="Dapper" Version="2.0.123" />
-    <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.9" />
-    <PackageReference Include="IPAddressRange" Version="4.2.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
+    <PackageReference Include="IPAddressRange" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Service\" />
-    <Folder Include="Application\" />
     <Folder Include="DomainModels\" />
     <Folder Include="DataAccess\" />
     <Folder Include="Service\ViewModels\" />
-    <Folder Include="Service\Requests\" />
     <Folder Include="Service\Mappings\" />
     <Folder Include="Service\Hubs\" />
     <Folder Include="Service\Background\" />
@@ -50,6 +48,7 @@
     <Folder Include="Swagger\" />
     <Folder Include="Controllers\V1\" />
     <Folder Include="Auth\" />
+    <Folder Include="Controllers\V1\Requests\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
@@ -59,5 +58,16 @@
     <None Remove="Microsoft.AspNetCore.Mvc.Versioning" />
     <None Remove="Newtonsoft.Json" />
     <None Remove="Auth\" />
+    <None Remove="Controllers\V1\Requests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\PublishProfiles\DotNet50 %28copy%29.pubxml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Service\ViewModels\SettingKeyVM %28copy%29.cs" />
   </ItemGroup>
 </Project>

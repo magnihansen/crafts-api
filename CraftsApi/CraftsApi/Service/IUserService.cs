@@ -1,20 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using CraftsApi.Service.Requests;
+using CraftsApi.Controllers.V1.Requests;
 
 namespace CraftsApi.Service
 {
     public interface IUserService
     {
-        Task<List<ViewModels.User>> GetUsersAsync();
+        Task<List<ViewModels.UserVM>> GetUsersAsync();
 
-        Task<ViewModels.User> GetUserAsync(int userId);
+        Task<ViewModels.UserVM> GetUserAsync(int userId);
 
-        Task<ViewModels.User> GetUserByCredientialsAsync(string username, string password);
+        Task<ViewModels.UserVM> GetUserByCredientialsAsync(string username, string password);
 
-        Task<bool> AddUserAsync(AddUserRequest addUserRequest);
+        Task<bool> AddUserAsync(DomainModels.User user);
 
-        Task<bool> UpdateUserAsync(UpdateUserRequest updateUserRequest);
+        Task<bool> UpdateUserAsync(DomainModels.User user);
 
         Task<bool> DeleteUserAsync(int userId);
     }
